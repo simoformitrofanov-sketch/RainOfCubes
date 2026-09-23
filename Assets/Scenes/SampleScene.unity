@@ -858,7 +858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cubePrefab: {fileID: -3965276724394967800, guid: e5e3626d879916f45a5b6ff960872984, type: 3}
-  _initialSize: 40
+  _initialSize: 20
 --- !u!4 &1491434210
 Transform:
   m_ObjectHideFlags: 0
