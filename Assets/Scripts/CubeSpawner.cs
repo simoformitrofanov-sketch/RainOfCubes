@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CubeSpawner : MonoBehaviour
@@ -9,9 +8,20 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private float _spawnInterval = 1f;
     [SerializeField] private float _spawnHeight = 20f;
 
-    private void Start()
+    private Coroutine _spawnRoutine;
+
+    private void OnEnable()
     {
-        InvokeRepeating(nameof(SpawnOne), _spawnInterval, _spawnInterval);
+        _spawnRoutine = StartCoroutine(SpawnLoop());
+    }
+
+    private void OnDisable()
+    {
+        if (_spawnRoutine == null)
+            return;
+
+        StopCoroutine(_spawnRoutine);
+        _spawnRoutine = null;
     }
 
     private void SpawnOne()
@@ -23,5 +33,14 @@ public class CubeSpawner : MonoBehaviour
         float z = Random.Range(-halfZ, halfZ);
 
         cube.transform.position = _spawnArea.position + new Vector3(x, _spawnHeight, z);
+    }
+
+    private IEnumerator SpawnLoop()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(_spawnInterval);
+            SpawnOne();
+        }
     }
 }
