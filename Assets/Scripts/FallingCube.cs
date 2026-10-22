@@ -35,6 +35,15 @@ public class FallingCube : MonoBehaviour
         _lifeTimer.Expired -= OnTimerExpired;
     }
 
+    public void ResetState()
+    {
+        _touchDetector.ResetTouch();
+        _colorChanger.ResetColor();
+        _lifeTimer.StopCountdown();
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+    }
+
     private void OnPlatformTouched()
     {
         _colorChanger.SetRandomColor();
@@ -44,14 +53,5 @@ public class FallingCube : MonoBehaviour
     private void OnTimerExpired()
     {
         Expired?.Invoke(this);
-    }
-
-    public void ResetState()
-    {
-        _touchDetector.ResetTouch();
-        _colorChanger.ResetColor();
-        _lifeTimer.StopCountdown();
-        _rigidbody.velocity = Vector3.zero;
-        _rigidbody.angularVelocity = Vector3.zero;
     }
 }

@@ -1,20 +1,27 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Renderer))]
 public class ColorChanger : MonoBehaviour
 {
     [SerializeField] private Color _initialColor = Color.red;
 
-    private Renderer _renderer;
+    private Material _material;
 
     private void Awake()
     {
-        _renderer = GetComponent<Renderer>();
-        _renderer.material.color = _initialColor;
+        _material = GetComponent<Renderer>().material;
+        _material.color = _initialColor;
+    }
+
+    private void OnDestroy()
+    {
+        if (_material != null)
+            Destroy(_material);
     }
 
     public void SetRandomColor()
     {
-        _renderer.material.color = new Color(
+        _material.color = new Color(
             Random.value,
             Random.value,
             Random.value
@@ -23,6 +30,6 @@ public class ColorChanger : MonoBehaviour
 
     public void ResetColor()
     {
-        _renderer.material.color = _initialColor;
+        _material.color = _initialColor;
     }
 }

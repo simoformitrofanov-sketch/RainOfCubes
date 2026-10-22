@@ -4,9 +4,9 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class PlatformTouchDetector : MonoBehaviour
 {
-    public event Action Touched;
-
     private bool _hasTouched;
+
+    public event Action Touched;
 
     private void OnCollisionEnter(Collision collision)
     { 

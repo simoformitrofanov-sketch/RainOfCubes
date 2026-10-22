@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class LifeTimer : MonoBehaviour
 {
-    public event Action Expired;
-
     private Coroutine _countdownRoutine;
+
+    public event Action<float> ProgressChanged;
+    public event Action Expired;
 
     public void StartCountdown(float duration)
     {
@@ -24,8 +25,19 @@ public class LifeTimer : MonoBehaviour
 
     private IEnumerator Countdown(float duration)
     {
-        yield return new WaitForSeconds(duration);
-        Expired?.Invoke();
+        float elapsedTime = 0f;
+        ProgressChanged?.Invoke(1f);
+
+        while (elapsedTime < duration)
+        {
+            yield return null;
+            elapsedTime += Time.deltaTime;
+
+            float progress = Mathf.Clamp01(1f - elapsedTime / duration);
+            ProgressChanged?.Invoke(progress);
+        }
+
         _countdownRoutine = null;
+        Expired?.Invoke();
     }
 }

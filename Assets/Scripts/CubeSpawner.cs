@@ -1,14 +1,16 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-public class CubeSpawner : MonoBehaviour
+public class CubeSpawner : Spawner<FallingCube>
 {
-    [SerializeField] private CubePool _pool;
     [SerializeField] private Transform _spawnArea;
     [SerializeField] private float _spawnInterval = 1f;
     [SerializeField] private float _spawnHeight = 20f;
 
     private Coroutine _spawnRoutine;
+
+    public event Action<Vector3> CubeExpired;
 
     private void OnEnable()
     {
@@ -26,13 +28,14 @@ public class CubeSpawner : MonoBehaviour
 
     private void SpawnOne()
     {
-        FallingCube cube = _pool.GetCube();
         float halfX = _spawnArea.localScale.x * 0.5f;
         float halfZ = _spawnArea.localScale.z * 0.5f;
-        float x = Random.Range(-halfX, halfX);
-        float z = Random.Range(-halfZ, halfZ);
+        float x = UnityEngine.Random.Range(-halfX, halfX);
+        float z = UnityEngine.Random.Range(-halfZ, halfZ);
 
-        cube.transform.position = _spawnArea.position + new Vector3(x, _spawnHeight, z);
+        Vector3 position = _spawnArea.position + new Vector3(x, _spawnHeight, z);
+        FallingCube cube = Spawn(position);
+        cube.Expired += OnCubeExpired;
     }
 
     private IEnumerator SpawnLoop()
@@ -42,5 +45,16 @@ public class CubeSpawner : MonoBehaviour
             yield return new WaitForSeconds(_spawnInterval);
             SpawnOne();
         }
+    }
+
+    private void OnCubeExpired(FallingCube cube)
+    {
+        Vector3 position = cube.transform.position;
+
+        cube.Expired -= OnCubeExpired;
+        cube.ResetState();
+        Return(cube);
+
+        CubeExpired?.Invoke(position);
     }
 }
