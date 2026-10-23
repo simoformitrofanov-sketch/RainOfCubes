@@ -3,17 +3,19 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlatformTouchDetector))]
-[RequireComponent(typeof(ColorChanger))]
+[RequireComponent(typeof(Renderer))]
 [RequireComponent(typeof(LifeTimer))]
 public class FallingCube : MonoBehaviour
 {
+    [SerializeField] private Color _initialColor = Color.red;
     [SerializeField] private float _minLifeTime = 2f;
     [SerializeField] private float _maxLifeTime = 5f;
 
     private Rigidbody _rigidbody;
     private PlatformTouchDetector _touchDetector;
-    private ColorChanger _colorChanger;
     private LifeTimer _lifeTimer;
+    private Material _material;
+    private readonly ColorGenerator _colorGenerator = new ColorGenerator();
 
     public event Action<FallingCube> Expired;
 
@@ -21,8 +23,9 @@ public class FallingCube : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _touchDetector = GetComponent<PlatformTouchDetector>();
-        _colorChanger = GetComponent<ColorChanger>();
         _lifeTimer = GetComponent<LifeTimer>();
+        _material = GetComponent<Renderer>().material;
+        _material.color = _initialColor;
 
         _touchDetector.Touched += OnPlatformTouched;
         _lifeTimer.Expired += OnTimerExpired;
@@ -30,15 +33,17 @@ public class FallingCube : MonoBehaviour
 
     private void OnDestroy()
     {
-        Expired = null;
         _touchDetector.Touched -= OnPlatformTouched;
         _lifeTimer.Expired -= OnTimerExpired;
+
+        if (_material != null)
+            Destroy(_material);
     }
 
     public void ResetState()
     {
         _touchDetector.ResetTouch();
-        _colorChanger.ResetColor();
+        _material.color = _initialColor;
         _lifeTimer.StopCountdown();
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
@@ -46,7 +51,7 @@ public class FallingCube : MonoBehaviour
 
     private void OnPlatformTouched()
     {
-        _colorChanger.SetRandomColor();
+        _material.color = _colorGenerator.Generate();
         _lifeTimer.StartCountdown(UnityEngine.Random.Range(_minLifeTime, _maxLifeTime));
     }
 

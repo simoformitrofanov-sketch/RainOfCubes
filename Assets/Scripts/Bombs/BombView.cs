@@ -1,26 +1,26 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
-[RequireComponent(typeof(LifeTimer))]
+[RequireComponent(typeof(Bomb))]
 public class BombView : MonoBehaviour
 {
     private Material _material;
-    private LifeTimer _lifeTimer;
+    private Bomb _bomb;
 
     private void Awake()
     {
         _material = GetComponent<Renderer>().material;
-        _lifeTimer = GetComponent<LifeTimer>();
+        _bomb = GetComponent<Bomb>();
     }
 
     private void OnEnable()
     {
-        _lifeTimer.ProgressChanged += SetAlpha;
+        _bomb.LifeProgressChanged += SetAlpha;
     }
 
     private void OnDisable()
     {
-        _lifeTimer.ProgressChanged -= SetAlpha;
+        _bomb.LifeProgressChanged -= SetAlpha;
     }
 
     private void OnDestroy()

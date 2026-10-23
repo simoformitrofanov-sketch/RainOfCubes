@@ -3,32 +3,36 @@ using UnityEngine;
 
 [RequireComponent(typeof(LifeTimer))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Exploder))]
 public class Bomb : MonoBehaviour
 {
     [SerializeField] private float _minLifeTime = 2f;
     [SerializeField] private float _maxLifeTime = 5f;
-    [SerializeField] private float _explosionRadius = 5f;
-    [SerializeField] private float _explosionForce = 10f;
 
     private LifeTimer _lifeTimer;
     private Rigidbody _rigidbody;
+    private Exploder _exploder;
 
     public event Action<Bomb> Expired;
+    public event Action<float> LifeProgressChanged;
 
     private void Awake()
     {
         _lifeTimer = GetComponent<LifeTimer>();
         _rigidbody = GetComponent<Rigidbody>();
+        _exploder = GetComponent<Exploder>();
     }
 
     private void OnEnable()
     {
         _lifeTimer.Expired += OnTimerExpired;
+        _lifeTimer.ProgressChanged += OnProgressChanged;
     }
 
     private void OnDisable()
     {
         _lifeTimer.Expired -= OnTimerExpired;
+        _lifeTimer.ProgressChanged -= OnProgressChanged;
         _lifeTimer.StopCountdown();
     }
 
@@ -41,30 +45,14 @@ public class Bomb : MonoBehaviour
         _lifeTimer.StartCountdown(duration);
     }
 
-    private void Explode()
-    {
-        Vector3 position = transform.position;
-        Collider[] colliders = Physics.OverlapSphere(position, _explosionRadius);
-
-        foreach (Collider collider in colliders)
-        {
-            Rigidbody body = collider.attachedRigidbody;
-
-            if (body == null || body == _rigidbody)
-                continue;
-
-            body.AddExplosionForce(
-                _explosionForce,
-                position,
-                _explosionRadius,
-                0f,
-                ForceMode.Impulse);
-        }
-    }
-
     private void OnTimerExpired()
     {
-        Explode();
+        _exploder.Explode();
         Expired?.Invoke(this);
+    }
+
+    private void OnProgressChanged(float progress)
+    {
+        LifeProgressChanged?.Invoke(progress);
     }
 }

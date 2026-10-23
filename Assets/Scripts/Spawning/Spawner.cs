@@ -7,13 +7,11 @@ public abstract class Spawner<T> : MonoBehaviour where T : Component
     [SerializeField] private T _prefab;
 
     private ObjectPool<T> _pool;
-    private int _spawnedCount;
-    private int _createdCount;
 
     public event Action CountsChanged;
 
-    public int SpawnedCount => _spawnedCount;
-    public int CreatedCount => _createdCount;
+    public int SpawnedCount { get; private set; }
+    public int CreatedCount { get; private set; }
     public int ActiveCount => _pool.CountActive;
 
     protected virtual void Awake()
@@ -30,7 +28,7 @@ public abstract class Spawner<T> : MonoBehaviour where T : Component
         T instance = _pool.Get();
         instance.transform.position = position;
         instance.gameObject.SetActive(true);
-        _spawnedCount++;
+        SpawnedCount++;
         CountsChanged?.Invoke();
 
         return instance;
@@ -46,7 +44,7 @@ public abstract class Spawner<T> : MonoBehaviour where T : Component
     {
         T instance = Instantiate(_prefab, transform);
         instance.gameObject.SetActive(false);
-        _createdCount++;
+        CreatedCount++;
 
         return instance;
     }
